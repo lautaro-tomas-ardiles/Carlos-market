@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "466721498481",
+    "project_id": "carlos-market-89919",
+    "storage_bucket": "carlos-market-89919.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:466721498481:android:04a8794e51fcd4663042d0",
+        "android_client_info": {
+          "package_name": "com.example.carlosmarket"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuSHRrqo1h20jhvrgcghSndLG5vyuH6LM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
