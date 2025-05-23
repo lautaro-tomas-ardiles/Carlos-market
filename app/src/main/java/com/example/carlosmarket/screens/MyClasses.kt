@@ -59,7 +59,7 @@ import com.example.carlosmarket.utilities.TextAndDivider
 import com.example.carlosmarket.utilities.TopBar
 
 @Composable
-private fun SearchBarContent(
+fun SearchBarContent(
     query: MutableState<String>,
     active: MutableState<Boolean>,
     filtered: List<String>,
@@ -136,7 +136,7 @@ private fun SearchBarContent(
 }
 
 @Composable
-private fun Searchbars(
+fun Searchbars(
     students: List<String>,
     onStudentSelected: (String?) -> Unit
 ) {
@@ -169,7 +169,7 @@ private fun Searchbars(
 }
 
 @Composable
-private fun Student(
+fun Student(
     name: String,
     balance: Int
 ) {
@@ -235,7 +235,7 @@ private fun Student(
 }
 
 @Composable
-private fun ListsOfStudents(
+fun ListsOfStudents(
     selectedStudent: String?,
     alumnos: List<String>
 ) {

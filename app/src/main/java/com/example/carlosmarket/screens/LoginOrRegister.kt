@@ -44,7 +44,7 @@ import com.example.carlosmarket.utilities.TopBar
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-private fun TextsField(
+fun TextsField(
     valueOnChanged: (String) -> Unit,
     label: String,
     isPassword: Boolean = false,
@@ -102,7 +102,7 @@ private fun TextsField(
 }
 
 @Composable
-private fun LoginOrRegister(
+fun LoginOrRegister(
     emailOnChange: (String) -> Unit,
     passwordOnChange: (String) -> Unit,
     nameOnChange: (String) -> Unit
@@ -136,7 +136,7 @@ private fun LoginOrRegister(
 }
 
 @Composable
-private fun AddClasses(
+fun AddClasses(
     email: String,
     password: String,
     name: String,

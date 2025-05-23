@@ -64,7 +64,7 @@ fun ClassesName(
 }
 
 @Composable
-private fun AddClasses(
+fun AddClasses(
     name: String,
     onInvalidName: (Boolean) -> Unit,
     navController: NavController

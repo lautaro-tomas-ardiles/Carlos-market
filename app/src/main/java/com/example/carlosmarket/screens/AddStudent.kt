@@ -39,7 +39,7 @@ import com.example.carlosmarket.utilities.Buttons
 import com.example.carlosmarket.utilities.TopBar
 
 //alumnos que existen es temporal despues se cambiara por una base de datos
-private val students = listOf(
+val students = listOf(
     "Sofía Ramírez",
     "Tomás Herrera",
     "Valentina Gómez",
@@ -49,7 +49,7 @@ private val students = listOf(
 )
 
 @Composable
-private fun StudentDropdown(
+fun StudentDropdown(
     studentName: String,
     onNameChange: (String) -> Unit,
     onSearch: (String) -> Unit,
@@ -110,7 +110,7 @@ private fun StudentDropdown(
 }
 
 @Composable
-private fun StudentList(
+fun StudentList(
     studentsList: List<String>,
     onRemove: (String) -> Unit
 ) {
@@ -163,8 +163,7 @@ fun MainAddStudent() {
                 onSelect = { studentName = it }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
+            Spacer(modifier = Modifier.padding(10.dp))
             // Botón para agregar alumno
             Buttons("Agregar alumno") {
                 if (studentName.isNotBlank() && !studentsList.contains(studentName)) {
@@ -172,23 +171,20 @@ fun MainAddStudent() {
                     studentName = ""
                 }
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.padding(10.dp))
 
             Text(
                 text = "Lista de alumnos:",
                 color = Yellow
             )
-
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.padding(10.dp))
 
             // Lista de alumnos
             StudentList(
                 studentsList = studentsList,
                 onRemove = { studentsList.remove(it) }
             )
-
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.padding(10.dp))
 
             Buttons("Guardar cambios") {
                 // TODO: Lógica para guardar
