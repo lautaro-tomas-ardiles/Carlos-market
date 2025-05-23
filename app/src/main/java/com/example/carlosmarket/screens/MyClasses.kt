@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.carlosmarket.screens
 
 import android.util.Log
@@ -17,8 +19,8 @@ import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.HorizontalDivider
@@ -33,6 +35,7 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,71 +55,46 @@ import com.example.carlosmarket.ui.theme.LightBlue
 import com.example.carlosmarket.ui.theme.Yellow
 import com.example.carlosmarket.utilities.BottomBar
 import com.example.carlosmarket.utilities.FloatButton
+import com.example.carlosmarket.utilities.TextAndDivider
 import com.example.carlosmarket.utilities.TopBar
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchbarMyClasses(
-    students: List<String>,
-    onStudentSelected: (String?) -> Unit // <-- ahora acepta null también
+private fun SearchBarContent(
+    query: MutableState<String>,
+    active: MutableState<Boolean>,
+    filtered: List<String>,
+    onStudentSelected: (String?) -> Unit,
+    leadingIconClick: () -> Unit,
+    trailingIconClick: () -> Unit
 ) {
-    var query by remember { mutableStateOf("") }
-    var active by remember { mutableStateOf(false) }
-
-    LaunchedEffect(query) {
-        if (query.isEmpty()) {
-            onStudentSelected(null) // <-- si el query está vacío, mostramos todos
-        }
-    }
-
-    val filtered = students.filter { it.contains(query, ignoreCase = true) }
-
     SearchBar(
-        query = query,
-        onQueryChange = { query = it },
-        onSearch = { active = false },
-        active = active,
-        onActiveChange = { active = it },
+        query = query.value,
+        onQueryChange = { query.value = it },
+        onSearch = { active.value = false },
+        active = active.value,
+        onActiveChange = { active.value = it },
         placeholder = { Text("Buscar personas...") },
         leadingIcon = {
-            if (!active) {
-                IconButton(
-                    onClick = {
-                        query = ""
-                        active = true
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Menu,
-                        contentDescription = "Abrir búsqueda"
-                    )
+            IconButton(
+                onClick = {
+                    leadingIconClick()
                 }
-            }else {
-                IconButton(
-                    onClick = {
-                        query = ""
-                        active = false
-                        onStudentSelected(null) // <-- si el query está vacío, mostramos todos
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Menu,
-                        contentDescription = "Cerrar búsqueda"
-                    )
-                }
+            ) {
+                Icon(
+                    imageVector = if (active.value) Icons.Default.Menu else Icons.Default.Close,
+                    contentDescription = if (active.value) "Cerrar búsqueda" else "Abrir búsqueda"
+                )
             }
         },
         trailingIcon = {
             IconButton(
                 onClick = {
-                    query = ""
-                    active = false
-                    onStudentSelected(null) // <-- si el query está vacío, mostramos todos
+                    trailingIconClick()
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Buscar"
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Limpiar búsqueda"
                 )
             }
         },
@@ -148,8 +126,8 @@ fun SearchbarMyClasses(
                     overlineColor = Color.Black
                 ),
                 modifier = Modifier.clickable {
-                    query = name
-                    active = false
+                    query.value = name
+                    active.value = false
                     onStudentSelected(name)
                 }
             )
@@ -158,25 +136,40 @@ fun SearchbarMyClasses(
 }
 
 @Composable
-fun DividirLine() {
-    Row(
-        modifier = Modifier.padding(10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "Sus alumnos",
-            color = Color.White
-        )
+private fun Searchbars(
+    students: List<String>,
+    onStudentSelected: (String?) -> Unit
+) {
+    val query = remember { mutableStateOf("") }
+    val active = remember { mutableStateOf(false) }
 
-        HorizontalDivider(
-            color = Color.White,
-            modifier = Modifier.padding(start = 10.dp)
-        )
+    LaunchedEffect(query.value) {
+        if (query.value.isEmpty()) {
+            onStudentSelected(null)
+        }
     }
+
+    val filtered = students.filter { it.contains(query.value, ignoreCase = true) }
+
+    SearchBarContent(
+        query = query,
+        active = active,
+        filtered = filtered,
+        onStudentSelected = onStudentSelected,
+        leadingIconClick = {
+            query.value = ""
+            active.value = !active.value
+            if (!active.value) onStudentSelected(null)
+        },
+        trailingIconClick = {
+            query.value = ""
+            onStudentSelected(null)
+        }
+    )
 }
 
 @Composable
-fun StudentMyClasses(
+private fun Student(
     name: String,
     balance: Int
 ) {
@@ -242,6 +235,22 @@ fun StudentMyClasses(
 }
 
 @Composable
+private fun ListsOfStudents(
+    selectedStudent: String?,
+    alumnos: List<String>
+) {
+    if (!selectedStudent.isNullOrBlank()) {
+        Student(selectedStudent, 100)
+    } else {
+        LazyColumn {
+            items(alumnos) { student ->
+                Student(student, 100)
+            }
+        }
+    }
+}
+
+@Composable
 fun MainMyClasses(navController: NavController, classesId: String) { // <- Debe ser String, no Int
     var selectedStudent by remember { mutableStateOf<String?>(null) }
     var alumnos by remember { mutableStateOf<List<String>>(emptyList()) }
@@ -267,14 +276,10 @@ fun MainMyClasses(navController: NavController, classesId: String) { // <- Debe 
             )
         },
         bottomBar = {
-            BottomBar(
-                deleteOnClick = {/*TODO*/ }
-            )
+            BottomBar(deleteOnClick = {/*TODO*/ })
         },
         floatingActionButton = {
-            FloatButton(
-                floatOnClick = {/*TODO*/ }
-            )
+            FloatButton(floatOnClick = {/*TODO*/ })
         },
         containerColor = DarkBlue,
         floatingActionButtonPosition = FabPosition.EndOverlay
@@ -284,22 +289,14 @@ fun MainMyClasses(navController: NavController, classesId: String) { // <- Debe 
             modifier = Modifier
                 .padding(paddingValues)
         ) {
-            SearchbarMyClasses(
+            Searchbars(
                 students = alumnos,
                 onStudentSelected = { selectedStudent = it }
             )
 
-            DividirLine()
+            TextAndDivider("Alumnos")
 
-            if (!selectedStudent.isNullOrBlank()) {
-                StudentMyClasses(selectedStudent!!, 100)
-            } else {
-                LazyColumn {
-                    items(alumnos) { student ->
-                        StudentMyClasses(student, 100)
-                    }
-                }
-            }
+            ListsOfStudents(selectedStudent, alumnos)
         }
     }
 }

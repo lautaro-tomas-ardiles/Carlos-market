@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -28,11 +26,12 @@ import com.example.carlosmarket.ui.theme.DarkBlue
 import com.example.carlosmarket.ui.theme.LightBlue
 import com.example.carlosmarket.ui.theme.Red
 import com.example.carlosmarket.ui.theme.Yellow
+import com.example.carlosmarket.utilities.Buttons
 import com.example.carlosmarket.utilities.TopBar
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun TextsFieldLoginOrRegister(
+fun ClassesName(
     name: String,
     isNameInvalid: Boolean,
     onNameChange: (String) -> Unit
@@ -59,14 +58,13 @@ fun TextsFieldLoginOrRegister(
                 unfocusedTextColor = Color.White,
                 errorBorderColor = Red,
                 errorLabelColor = Red
-            ),
-            modifier = Modifier.fillMaxWidth(0.75f)
+            )
         )
     }
 }
 
 @Composable
-fun ButtonsAddClasses(
+private fun AddClasses(
     name: String,
     onInvalidName: (Boolean) -> Unit,
     navController: NavController
@@ -74,29 +72,21 @@ fun ButtonsAddClasses(
     Row(
         modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
     ) {
-        Button(
-            onClick = {
-                val nameError = name.isBlank()
-                val uid = FirebaseAuth.getInstance().currentUser?.uid
-                onInvalidName(nameError)
+        Buttons("Agregar") {
+            val nameError = name.isBlank()
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+            onInvalidName(nameError)
 
-                if (!nameError) {
-                    val dataClass = hashMapOf(
-                        "nombre" to name,
-                        "profesorId" to uid,
-                        "items" to listOf("pepa","pepe")
-                    )
+            if (!nameError) {
+                val dataClass = hashMapOf(
+                    "nombre" to name,
+                    "profesorId" to uid,
+                    "items" to listOf<String>()
+                )
 
-                    FireBaseCRUD().addClass(dataClass)
-                }
-                navController.navigate(AppScreen.ClassesHub.route)
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = LightBlue,
-                contentColor = Color.Black
-            )
-        ) {
-            Text("Agregar")
+                FireBaseCRUD().addClass(dataClass)
+            }
+            navController.navigate(AppScreen.ClassesHub.route)
         }
     }
 }
@@ -126,7 +116,7 @@ fun MainAddClasses(navController: NavController) {
                 color = Color.White
             )
 
-            TextsFieldLoginOrRegister(
+            ClassesName(
                 name = name,
                 isNameInvalid = isNameInvalid,
                 onNameChange = {
@@ -135,7 +125,7 @@ fun MainAddClasses(navController: NavController) {
                 },
             )
 
-            ButtonsAddClasses(
+            AddClasses(
                 name = name,
                 onInvalidName = { isNameInvalid = it },
                 navController = navController

@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.FabPosition
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,7 +21,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -37,12 +34,13 @@ import com.example.carlosmarket.ui.theme.DarkBlue
 import com.example.carlosmarket.ui.theme.Green
 import com.example.carlosmarket.utilities.BottomBar
 import com.example.carlosmarket.utilities.FloatButton
+import com.example.carlosmarket.utilities.TextAndDivider
 import com.example.carlosmarket.utilities.TopBar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ListenerRegistration
 
 @Composable
-fun Classes(
+private fun Classes(
     clase: Clase,
     deleteState: Boolean,
     navController: NavController,
@@ -71,16 +69,18 @@ fun Classes(
                     navController.navigate(AppScreen.MyClasses.createRoute(classesId = clase.id))
                 }
             }
-            .padding(vertical = 25.dp, horizontal = 15.dp)
+            .padding(vertical = 15.dp, horizontal = 15.dp)
     ) {
         Text(clase.nombre)
     }
     Spacer(modifier = Modifier.height(1.dp))
 }
 
-
 @Composable
-fun ListOfClasses(deleteState: Boolean, navController: NavController) {
+private fun ListOfClasses(
+    deleteState: Boolean,
+    navController: NavController
+) {
     val clases = remember { mutableStateListOf<Clase>() }
     val uid = FirebaseAuth.getInstance().currentUser?.uid
 
@@ -144,19 +144,9 @@ fun MainClassesHub(navController: NavController) {
         Column(
             modifier = Modifier.padding(paddingValues)
         ) {
-            Row(
-                modifier = Modifier.padding(10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "Sus Clases", color = Color.White)
-                HorizontalDivider(
-                    color = Color.White,
-                    modifier = Modifier.padding(start = 10.dp)
-                )
-            }
+            TextAndDivider("Mis clases")
 
             ListOfClasses(deleteState = deleteState, navController)
         }
     }
 }
-

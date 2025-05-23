@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -41,127 +39,104 @@ import com.example.carlosmarket.ui.theme.DarkBlue
 import com.example.carlosmarket.ui.theme.LightBlue
 import com.example.carlosmarket.ui.theme.Red
 import com.example.carlosmarket.ui.theme.Yellow
+import com.example.carlosmarket.utilities.Buttons
 import com.example.carlosmarket.utilities.TopBar
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun TextsFieldLoginOrRegister(
+private fun TextsField(
+    valueOnChanged: (String) -> Unit,
+    label: String,
+    isPassword: Boolean = false,
+    isEmail: Boolean = false
+) {
+    var value by remember { mutableStateOf("") }
+
+    var passwordVisibility by remember { mutableStateOf(true) }
+
+    OutlinedTextField(
+        value = value,
+        onValueChange = {
+            value = it
+            valueOnChanged(it)
+        },
+        label = {
+            Text(label)
+        },
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Yellow,
+            focusedLabelColor = Yellow,
+            unfocusedBorderColor = LightBlue,
+            focusedTextColor = Yellow,
+            unfocusedTextColor = Color.White,
+            errorBorderColor = Red,
+            errorLabelColor = Red
+        ),
+        trailingIcon = {
+            if (isPassword) {
+                IconButton(
+                    onClick = { passwordVisibility = !passwordVisibility }
+                ) {
+                    Icon(
+                        painter = if (passwordVisibility) painterResource(R.drawable.eye)
+                        else painterResource(R.drawable.eye_off),
+                        contentDescription = "show password",
+                        tint = LightBlue,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+            }
+        },
+        visualTransformation =
+        if (!passwordVisibility) {
+            PasswordVisualTransformation()
+        } else {
+            VisualTransformation.None
+        },
+        keyboardOptions = when {
+            isEmail -> KeyboardOptions(keyboardType = KeyboardType.Email)
+            isPassword -> KeyboardOptions(keyboardType = KeyboardType.Password)
+            else -> KeyboardOptions(keyboardType = KeyboardType.Text)
+        }
+    )
+}
+
+@Composable
+private fun LoginOrRegister(
     emailOnChange: (String) -> Unit,
     passwordOnChange: (String) -> Unit,
     nameOnChange: (String) -> Unit
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var name by remember { mutableStateOf("") }
-
-    var passwordVisible by remember { mutableStateOf(true) }
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 30.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        OutlinedTextField(
-            value = name,
-            onValueChange = {
-                name = it
-                nameOnChange(it)
-            },
-            label = {
-                Text("ingrese su nombre")
-            },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Yellow,
-                focusedLabelColor = Yellow,
-                unfocusedBorderColor = LightBlue,
-                focusedTextColor = Yellow,
-                unfocusedTextColor = Color.White,
-                errorBorderColor = Red,
-                errorLabelColor = Red
-            ),
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Email
-            )
 
+        TextsField(
+            valueOnChanged = nameOnChange,
+            label = "ingrese su nombre"
         )
         Spacer(modifier = Modifier.padding(10.dp))
 
-        OutlinedTextField(
-            value = email,
-            onValueChange = {
-                email = it
-                emailOnChange(it)
-            },
-            label = {
-                Text("ingrese su mail")
-            },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Yellow,
-                focusedLabelColor = Yellow,
-                unfocusedBorderColor = LightBlue,
-                focusedTextColor = Yellow,
-                unfocusedTextColor = Color.White,
-                errorBorderColor = Red,
-                errorLabelColor = Red
-            ),
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Email
-            )
-
+        TextsField(
+            valueOnChanged = emailOnChange,
+            label = "ingrese su email",
+            isEmail = true
         )
         Spacer(modifier = Modifier.padding(10.dp))
 
-        OutlinedTextField(
-            value = password,
-            onValueChange = {
-                password = it
-                passwordOnChange(it)
-            },
-            label = {
-                Text("ingrese su contraseña")
-            },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Yellow,
-                focusedLabelColor = Yellow,
-                unfocusedBorderColor = LightBlue,
-                focusedTextColor = Yellow,
-                unfocusedTextColor = Color.White,
-                errorBorderColor = Red,
-                errorLabelColor = Red
-            ),
-            trailingIcon = {
-                IconButton(
-                    onClick = { passwordVisible = !passwordVisible }
-                ) {
-                    Icon(
-                        painter =
-                        if (passwordVisible) {
-                            painterResource(R.drawable.eye)
-                        } else {
-                            painterResource(R.drawable.eye_off)
-                        },
-                        contentDescription = "show password",
-                        tint = LightBlue,
-                        modifier = Modifier.size(30.dp)
-                    )
-                }
-            },
-            visualTransformation =
-            if (!passwordVisible) {
-                PasswordVisualTransformation()
-            } else {
-                VisualTransformation.None
-            },
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Password
-            )
+        TextsField(
+            valueOnChanged = passwordOnChange,
+            label = "ingrese su contraseña",
+            isPassword = true
         )
     }
 }
 
 @Composable
-fun ButtonsAddClasses(
+private fun AddClasses(
     email: String,
     password: String,
     name: String,
@@ -173,57 +148,43 @@ fun ButtonsAddClasses(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) {
-        Button(
-            onClick = {
-                viewModel.singInWithEmailAndPassword(
-                    email = email,
-                    password = password,
-                    onSuccess = {
-                        navController.navigate(AppScreen.ClassesHub.route)
-                    },
-                    onError = {
-                        onErrorMessage(it) // muestra mensaje en snackbar
-                    }
-                )
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = LightBlue,
-                contentColor = Color.Black
+        Buttons("Login") {
+            viewModel.singInWithEmailAndPassword(
+                email = email,
+                password = password,
+                onSuccess = {
+                    navController.navigate(AppScreen.ClassesHub.route)
+                },
+                onError = {
+                    onErrorMessage(it) // muestra mensaje en snackbar
+                }
             )
-        ) {
-            Text("Login")
         }
-
         Spacer(modifier = Modifier.padding(5.dp))
 
-        Button(
-            onClick = {
-                viewModel.createUserWithEmailAndPassword(
-                    email = email,
-                    password = password,
-                    onSuccess = {
-                        val uid = FirebaseAuth.getInstance().currentUser?.uid
-                        if (uid != null) {
-                            val profesorData = hashMapOf<String, Any>(
-                                "uid" to uid,
-                                "nombre" to name,
-                                "email" to email,
-                            )
-                            FireBaseCRUD().addProfesor(profesorData)
-                        }
-                        navController.navigate(AppScreen.ClassesHub.route)
-                    },
-                    onError = {
-                        onErrorMessage(it) // muestra mensaje en snackbar
+        Buttons("Register") {
+            viewModel.createUserWithEmailAndPassword(
+                email = email,
+                password = password,
+                onSuccess = {
+                    val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+                    if (uid != null) {
+
+                        val profesorData = hashMapOf<String, Any>(
+                            "uid" to uid,
+                            "nombre" to name,
+                            "email" to email,
+                        )
+
+                        FireBaseCRUD().addProfesor(profesorData)
                     }
-                )
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = LightBlue,
-                contentColor = Color.Black
+                    navController.navigate(AppScreen.ClassesHub.route)
+                },
+                onError = {
+                    onErrorMessage(it) // muestra mensaje en snackbar
+                }
             )
-        ) {
-            Text("Register")
         }
     }
 }
@@ -270,12 +231,12 @@ fun MainLoginOrRegister(
                 color = Color.White
             )
 
-            TextsFieldLoginOrRegister(
+            LoginOrRegister(
                 emailOnChange = { generalEmail = it },
                 passwordOnChange = { generalPassword = it },
                 nameOnChange = { generalName = it }
             )
-            ButtonsAddClasses(
+            AddClasses(
                 email = generalEmail,
                 password = generalPassword,
                 name = generalName,
